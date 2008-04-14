@@ -1,0 +1,6 @@
+Revision history for Perl extension TM::SearchAble.
+
+0.01  Sun Apr 13 11:46:22 2008
+	- original version; created by h2xs 1.23 with options
+		-X -n TM::SearchAble -b 5.8.0
+

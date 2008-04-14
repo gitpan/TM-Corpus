@@ -1,0 +1,17 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         TM-Corpus
+version:      0.02
+version_from: lib/TM/Corpus.pm
+installdirs:  site
+requires:
+    File::Path:                    1.08
+    File::Temp:                    0.16
+    LWP:                           2.033
+    Plucene:                       1.24
+    Test::More:                    0.47
+    Test::Pod:                     1
+    TM:                            1.33
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.30_01
