@@ -12,9 +12,11 @@ WriteMakefile(
 		  'Plucene'     => 1.24,
 		  'File::Path'  => 1.08,
 		  'File::Temp'  => 0.16,
+		  'BerkeleyDB'  => 0.26,
+		  "MLDBM"       => 2.01,
 	      },
 	      ABSTRACT_FROM  => 'lib/TM/Corpus.pm', # retrieve abstract from module
-	      AUTHOR         => 'Robert Barta <rho@devc.at>');
+	      AUTHOR         => 'Robert Barta <drrho@cpan.org>');
 
 package MY;
 

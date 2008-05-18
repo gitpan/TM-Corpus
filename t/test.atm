@@ -1,0 +1,661 @@
+#------------------------------------------------------------------
+
+semantic-web (technology)
+bn: Semantic Web
+oc (article): http://www.scientificamerican.com/2001/0501issue/0501berners-lee.html
+oc (article): http://www.ryerson.ca/~dgrimsha/courses/cps720_02/resources/Scientific%20American%20The%20Semantic%20Web.htm
+oc (homepage): http://www.w3.org/2001/sw/
+in (definition): The Semantic Web is the abstract representation of\
+	data on the World Wide Web, based on the RDF standards and other\
+	standards to be defined. It is being developed by the W3C, in\
+	collaboration with a large number of researchers and industrial\
+	partners.
+in (quote): The Semantic Web is an extension of the current web in\
+	which information is given well-defined meaning, better enabling\
+	computers and people to work in cooperation.
+in (history): launched Feb 2001: W3C Activity -- Tim Berners-Lee initiative
+oc (progress-report): http://www.xml.com/pub/a/2004/03/03/deviant.html
+oc (introduction): http://infomesh.net/2001/swintro/
+oc (road-map): http://www.w3.org/DesignIssues/Semantic.html
+oc (faq): http://www.w3.org/DesignIssues/RDFnot.html
+oc (presentation): http://www.amk.ca/talks/semweb-intro/
+in (observation): Semantic Web mostly academic initiative -- but big players are watching
+in: SW takes ideas from AI and transfers it onto the web -- logic used like in deductive databases
+oc: http://www.xml.com/pub/a/2000/12/xml2000/timbl.html
+oc (presentation): http://www.cs.umd.edu/~hendler/presentations/SWEO-talk.ppt
+oc (critique): http://blahsploitation.blogspot.com/2005/05/danny-ayers-is-still-valiantly.html
+oc (critique): http://www.zdnet.com.au/news/software/soa/Google_exec_challenges_Berners_Lee/0,130061733,139263931,00.htm
+oc (architecture): http://www.dfki.uni-kl.de/~grimnes/2007/07/sw_stack/sw-stack-2005.svg
+oc (slide-show): http://www.w3.org/2005/Talks/0412-HK-Guangzhou-IH/
+oc (blog-roll): http://blogs.talis.com/nodalities/this_weeks_semantic_web/
+oc (presentation): http://www.dfki.uni-kl.de/~sauermann/2007/10/24/semantic_web_anwendungen_for_sweo.ppt
+oc (analysis): http://www.readwriteweb.com/archives/semantic_web_difficulties_with_classic_approach.php
+oc (proposal): http://www.readwriteweb.com/archives/the_top-down_semantic_web.php
+
+(addresses-problem)
+problem: syntactic-web
+solution: semantic-web
+
+syntactic-web (technology)
+bn: Syntactic Web
+in: myriads of web sites -- only for "humans" and screen-scrapers
+in (problem): information hidden in different formats -- different languages -- in pictures
+in (problem): not following a processable vocabulary -- domain-specific terminology -- only humans can interpret that
+oc (article): http://www.idealliance.org/papers/xml2001/papers/html/03-01-04.html
+in (problem): Google (and other SEs) have to index full-text, a lot! -- Google does not reach all of the DB content -- how can Google know what is important? -- \
+   get "information" at best, not knowledge
+in: "12345678 has passed an XML course conducted by Robert" -- implicit knowledge: 12345678 is a student number, \
+   number belongs to X, X is a person, Robert is a person, X knows Robert, X knows XML, X knows XPath
+in (conclusion): much information, much confusion -- much confusion, little knowledge
+oc (map): http://www.w3.org/2007/09/map/main.jpg
+oc (map): http://www.flickr.com/photos/psd/1805709102/in/photostream/
+oc (map): http://chrisharrison.net/projects/InternetMap/index.html
+
+#-- architecture --------------------------------------------------
+
+(has-architecture)
+architecture: cake-layer
+system : semantic-web
+
+cake-layer (architecture)
+oc (diagram): http://www.w3.org/2000/Talks/1206-xml2k-tbl/slide10-0.html
+bn: cake layer, TBL architecture semantic web
+in: state of the art -- describes layered cake -- objectives of semantic web activity statement -- no opinion
+
+(is-based-on)
+basis: web
+concept: semantic-web
+
+web (technology)
+bn: Web, World Wide Web
+in: base technology like HTML, HTTP, URLs, ....
+in: display oriented, what does a link mean? -- little automation
+
+(makes-use-of)
+user: semantic-web
+used: rdf
+
+(makes-use-of)
+user: semantic-web
+used: topicmaps
+
+(makes-use-of)
+user: semantic-web
+used: web-services
+
+web-services
+bn: Web Services
+in: no, not a normal web server
+oc (mda-zoom): /mda/internet/web/services/web-service
+
+#-- goals ----------------------------------------------
+
+semantic-web-goal-automated (system-requirement)
+bn: automated information processing
+in (comment): basis for web services -- allows a wide range of applications
+
+(has-goals)
+goal: semantic-web-goal-automated
+mission: semantic-web
+
+(has-goals)
+goal: semantic-web-goal-universal
+mission: semantic-web
+
+semantic-web-goal-universal (system-requirement)
+bn: SW universal
+in: everything should work the same across the planet
+
+(has-goals)
+mission: semantic-web
+goal: semantic-web-goal-decentralized
+
+semantic-web-goal-decentralized (system-requirement)
+bn: SW decentralized
+in: no central repository, registry, ....
+
+(has-goals)
+mission: semantic-web
+goal: semantic-web-goal-evolvable
+
+semantic-web-goal-evolvable (system-requirement)
+bn: SW evolvable
+in: must be allowed to grow
+
+(has-goals)
+mission: semantic-web
+goal: semantic-web-goal-improved-searching
+
+semantic-web-goal-improved-searching (system-requirement)
+bn: SW improved searching
+in: search engines get more out of documents
+
+#-- challenges ----------------------------------------
+
+(has-challenge)
+challenge: automated-understanding-of-external-data
+mission  : semantic-web
+
+automated-understanding-of-external-data (research-area)
+bn: automated understanding of external data
+in (comment): need description about the data (meta data) -- structured not simply text -- not analysis of (hyper)text
+in (goal): query a document versus extract meaning
+
+(has-challenge)
+challenge: logic-and-inferencing
+mission  : semantic-web
+
+logic-and-inferencing (research-area)
+bn: logic and inferencing
+in (comment): this is not strictly AI -- not proof generation, only validation
+in (comment): restrictions on expressitivity -- tradeoff with computational complexity
+in (example): X passed exam => X is a student : logic -- X knows about the subject : proof -- employer sees this via several sources: trust
+
+(has-challenge)
+challenge : meta-data-dotation
+mission : semantic-web
+
+#-- meta data ------------------------------------------------------
+
+meta-data-technology (technology)
+bn: Meta Data Technology
+in: all activities, standards and systems involved dealing with meta data and applications
+oc (context): http://james.bond.edu.au/courses/inft73371/053/content-theory.jpg
+
+(system-handles-data)
+system: meta-data-technology
+data  : meta-data
+
+meta-data (data)
+bn: Meta Data
+in (comment): data about data -- sufficiently rich to be understood by an application
+in (comment): every meta data scheme is 'open' in that there is meta data for meta data
+in (comment): Buzzwords: shallow content -- grey matter -- dark matter
+in: huge market -- often seen as extension of document repositories
+
+(is-constrained-by)
+constraint : ontology
+object     : meta-data
+
+ontology
+bn: Ontology
+in: vocabulary, taxonomy and application specific rules on an application domain
+oc (mda-zoom) : http://topicmaps.it.bond.edu.au/mda/internet/semantic-web/ontology/ontology
+
+ontoview (mda-view)
+bn: View for Ontology
+
+(mda-is-view-to)
+view : ontoview
+map  : ontology
+
+(mda-is-author-of)
+opus  : ontoview
+author: rho
+
+#-----------------------------------------------------------------------------
+
+(is-related-to)
+issue : meta-data-dotation
+issue2: meta-data
+
+(is-related-to)
+issue : meta-data-notation
+issue2: meta-data
+
+(is-related-to)
+issue2 : meta-data
+issue: automated-understanding-of-external-data
+
+#-- RDF --------------------------------------------------------------------
+
+rdf
+bn: RDF, Resource Description Framework
+oc (mda-zoom) : http://topicmaps.it.bond.edu.au/mda/internet/semantic-web/rdf/rdf
+
+rdfview (mda-view)
+bn: View for RDF Map
+
+(mda-is-view-to)
+view : rdfview
+map  : rdf
+
+(mda-is-author-of)
+opus  : rdfview
+author: rho
+
+#-- Topic Maps -------------------------------------------------------------
+
+
+topicmaps
+bn: Topic Maps
+oc (mda-zoom) : http://topicmaps.it.bond.edu.au/mda/internet/semantic-web/topicmaps/topicmaps
+
+tmview (mda-view)
+bn: View for Topic Maps
+
+(mda-is-view-to)
+view : tmview
+map  : topicmaps
+
+(mda-is-author-of)
+opus  : tmview
+author: rho
+
+
+#-----------------------------------------------------------------------------
+
+meta-data-dotation (activity)
+bn: add meta data to objects
+in (comment): enrich object by adding meta data -- usually author, ... but anything is possible
+in (observation): librarians did this the last couple of hundred years -- global taxonomy -- sufficient for semantic web?
+in (conclusion): need structure (= model) how to express meta-data
+
+
+(is-notated-in) #  is-reified-by notate-meta-data-by-topicmaps
+notation : topicmaps
+data     : meta-data
+
+(is-notated-in) # is-reified-by notate-meta-data-by-rdf
+notation : rdf
+data     : meta-data
+
+(is-notated-in) # is-reified-by notate-meta-data-by-xml
+notation : xml
+data     : meta-data
+
+
+(technology-is-used)
+technology: meta-data-technology
+application : web-portal
+
+(technology-is-used)
+technology: meta-data-technology
+application : eai
+
+eai (activity)
+bn: Enterprise Application Integration
+
+(technology-is-used)
+technology: meta-data-technology
+application : content-management-system
+
+(technology-is-used)
+technology: meta-data-technology
+application : knowledge-management-system
+
+(technology-is-used)
+technology: meta-data-technology
+application : legal-rights-management
+
+
+
+xml (markup-technology)
+bn: XML
+oc (mda-zoom): /mda/markup/xml/xml
+
+notate-meta-data-by-topicmaps (activity)
+bn: notate meta data with Topic Maps
+in (pro) : some a few commercial vendors, but only slowly growing
+in (con) : complex technology
+in (pro) : endorsed by OASIS
+
+
+notate-meta-data-by-rdf (activity)
+bn: notate meta data with RDF
+in (pro) : RDF was designed that way
+in (con) : simple, rather low level model
+in (con) : not many tools, but quickly improving
+in (pro) : endorsed by the W3C
+
+notate-meta-data-by-xml (activity)
+bn: notate meta data by XML
+in (comment): tags imply a semantics -- is to be interpreted by the application
+in (pro)    : wide proliferation of XML
+in (con)    : ad-hoc vocabulary -- no standard way to express things and relationships
+in (con)    : too general -- mix of text and markup -- order relevant?
+in (con)    : too many ways to express facts
+
+
+pro
+bn: advantage
+
+con
+bn: disadvantage
+
+#-- literature ---------------------------------------------------
+
+tbl01 (online-article)
+bn: Feature Article: The Semantic Web
+in (author): T. Berners-Lee
+in (journal): Scientific American
+in @ latex (journal): {Scientific American}
+in (year): 2001
+oc: http://www.scientificamerican.com/2001/0501issue/0501berners-lee.html
+oc (backup): http://www.ryerson.ca/~dgrimsha/courses/cps720_02/resources/Scientific%20American%20The%20Semantic%20Web.htm
+
+(covers-theme)
+theme: semantic-web
+cover : tbl01
+
+tbl99 (article)
+bn: Weaving the Web: The Original Design and Ultimate Destiny of the World Wide Web by its Inventor
+in (publisher): Harper
+in (year): 1999.
+in (author): T. Berners-Lee and M. Fischetti
+in @ latex (author): T. Berners-Lee and M. Fischetti
+
+(covers-theme)
+theme: semantic-web
+cover : tbl99
+
+
+webont (online-article) # reifies 
+bn: If Ontology, Then Knowledge: Catching Up With WebOnt
+in (author): Clark, K. G.
+in (publisher): XML.com
+in (year): 2002
+oc: http://www.xml.com/pub/a/2002/05/01/webont.html
+
+(covers-theme)
+cover: webont
+theme: semantic-web
+
+#-- conferences
+
+#TODO
+
+
+
+%cancel
+
+http://iswc2003.semanticweb.org/
+
+
+http://www.w3.org/2001/sw/BestPractices/RDFTM/survey-2005-02-24.html
+
+# semantic web
+
+http://swsf.semanticweb.org/
+
+http://www.agfa.com/w3c/euler/
+
+http://www.xml.com/pub/a/2002/05/01/webont.html
+
+
+If you've been following Jon Udell's recent columns, you'll be
+aware of the evolutionary development of the markup he uses on
+his own web site. This month, Udell analyzes his progress and
+suggests that the real route the Semantic Web will take will be
+similar to that of real language itself: something that grows as
+we talk, listen, and imitate.
+
+<http://www.xml.com/pub/a/2003/09/17/udell.html>
+
+Kendall's put together a couple of reports for us from the
+conference.  The first is entitled "Commercializing the Semantic
+Web" and focuses on how semantic web technologies are and will be
+brought into marketable products.  Kendall focuses particularly
+on a company called Network Inference, which has achieved this
+goal, and learned some valuable lessons.
+
+<http://www.xml.com/pub/a/2003/10/22/iswc.html>
+
+The second ISWC report covers the world of "rules."  Rules are
+part of Tim Berners-Lee's "layer cake" of semantic web technology,
+and are necessary for deducing new facts from existing ones, or
+firing actions.  As well as surveying the state of the rules world,
+Kendall ponders how the academic community can connect with the
+free software development world in order to make the semantic web
+as successful as the original web.
+
+<http://www.xml.com/pub/a/2003/10/23/iswc.html>
+
+
+
+
+The Semantic Web gets real
+Eric Knorr, ZDNet
+
+Put a semantic "wrapper" around Web services, and you could potentially reduce the complexity of
+what needs to be specified in protocols and XML schema.
+
+http://www.zdnet.com.au/newstech/communications/story/0,2000024993,20270718,00.htm
+
+
+
+
+Finally, as usual we have our regular dose of news from the XML
+community in the XML-Deviant column.  One oft-discussed topic is
+whether the future of the Web belongs to Web services or to the
+Semantic Web.  Kendall Clark discovers that a new project, DAML-S, sets
+out to unify the two, and indeed could reach further into distributed
+computing in general.
+
+Read "The True Meaning of Service" at
+http://www.xml.com/pub/a/2002/07/17/daml-s.html
+
+
+
+
+In the third and final part of our look at the DARPA Agent Markup
+Language, an important part of developing Semantic Web technology,
+Roxane Ouellet provides us with a handy reference to the classes
+and properties of RDF, RDF Schema and DAML.  If you like your web
+semantic, be sure to bookmark
+<http://www.xml.com/pub/a/2002/05/01/damlref.html>.
+
+
+Staying on the Semantic Web theme, Kendall Clark examines the W3C's
+Web Ontology Working Group in this week's XML Deviant column.  The
+WebOnt WG is developing a language that will be the successor to
+DAML, intended for use in describing ontologies.  Kendall explains
+the mission of WebOnt and comments on their progress so far at
+<http://www.xml.com/pub/a/2002/05/01/webont.html>.
+
+
+
+XML.com's main feature this week focuses on DAML, a modeling
+language built on RDF.  DAML allows the sort of sophisticated
+data modeling that is required for the vision of the
+machine-processable Semantic Web to be realized.  Follow the
+first part of Uche Ogbuji's Introduction to DAML at
+<http://www.xml.com/pub/a/2002/01/30/daml1.html>.
+
+
+http://www.w3.org/2000/10/swap/Primer (Getting Into RDF & Semantic Web Using N3)
+http://www.w3.org/DesignIssues/Semantic (Semantic Web Roadmap)
+http://purl.org/swag/whatIsSW (What Is The Semantic Web?)
+http://uwimp.com/eo.htm (Semantic Web Primer)
+http://logicerror.com/semanticWeb-long (Semantic Web Introduction - Long)
+http://www.scientificamerican.com/2001/0501issue/0501berners-lee.html (SciAm: The Semantic Web)
+http://www.xml.com/pub/a/2001/03/07/buildingsw.html (Building The Semantic Web)
+http://infomesh.net/2001/06/swform/ (The Semantic Web, Taking Form)
+http://www.w3.org/2001/sw/Activity (SW Activity Statement)
+http://www.w3.org/2000/01/sw/ (SWAD)
+
+
+
+
+
+http://logic.stanford.edu/kif/kif.html
+Knowledge Interchange Format (KIF)
+
+http://logic.stanford.edu/kif/dpans.html
+%cancel
+
+conceptual-graphs
+oc (standard): http://www.jfsowa.com/cg/cgstand.htm
+
+%cancel
+
+conceptual-graphs
+bn: Conceptual Graphs
+oc (book): http://www.jfsowa.com/krbook/index.htm
+
+%cancel
+
+conceptual-graphs
+oc (slides): http://www.hum.aau.dk/~scharfe/vid/lecture.htm
+
+%cancel
+
+dublin-core (meta-data-standard)
+bn: Dublin Core
+in (history): meeting in Dublin, Ohio in 1995
+in: metadata standard for library resources
+oc: http://dublincore.org/
+
+%cancel
+
+LOM (meta-data-standard)
+bn: LOM, Learning Object Metadata
+oc: http://ltsc.ieee.org/wg12/
+in (endorser): Institute of Electrical and Electronics Engineers
+
+%cancel
+
+SCORM (meta-data-standard)
+bn: SCORM, shareable content object reference model
+in: uses a subset of the LOM -- packaging learning resources -- shared across different learning management systems
+
+%cancel
+
+WinFS (meta-data-file-system)
+bn: WinFS
+
+%cancel
+
+Spotlight (meta-data-file-system)
+bn: Spotlight
+
+%cancel
+
+Beagle
+
+
+conceptual-graphs (knowledge-representation-technique)
+bn: Conceptual Graphs
+in (inventor): John Sowa
+in: based on existential graphs of Charles Sanders Peirce
+oc (tutorial): http://www.cs.uah.edu/~delugach/CG/Sowa-intro.html
+in (purpose): express meaning in a form that is logically precise, humanly readable, and computationally tractable
+oc (standard): http://www.jfsowa.com/cg/cgstand.htm
+in: Linear Form (LF): for text representation -- Display Form (DF): graphically
+oc (tool-list): http://www.cs.uah.edu/~delugach/CG/CGTools.html
+oc (homepage): http://www.jfsowa.com/cg/
+oc (examples): http://www.jfsowa.com/cg/cgexampw.htm
+
+
+knowledge-interchange-form
+
+#-- KIF ---------------------------
+
+KIF (knowledge-interchange-form)
+bn: KIF
+oc (standard): http://logic.stanford.edu/kif/dpans.html
+
+
+KIF-instance (text-stream)
+bn: KIF instance
+in (example): <<EOM
+(exists ((?x Go) (?y Person) (?z City) (?w Bus))
+(and (Name ?y John) (Name ?z Boston)
+(Agnt ?x ?y) (Dest ?x ?z) (Inst ?x ?w)))
+EOM
+
+#-- CGIF ---------------------------
+
+CGIF (knowledge-interchange-form)
+bn: CGIF
+
+CGIF-instance (text-stream)
+bn: CGIF instance
+in (example): <<EOM
+[Go *x] (Agnt ?x [Person 'John']) (Dest ?x [City 'Boston']) (Inst ?x [Bus])
+EOM
+
+(can-be-translated)
+original: KIF-instance
+translation: CGIF-instance
+
+
+%cancel
+
+
+%cancel
+
+explorer-guide (book)
+bn:  Explorer's Guide to the Semantic Web
+in (author): Thomas B. Passin
+oc (amazon): http://www.amazon.com/exec/obidos/ASIN/1932394206/jr_bunk-20/103-7987945-5110261
+in (publisher): Manning
+oc (press): http://www.javaranch.com/journal/200408/Journal200408.jsp#a2
+
+%cancel
+
+ontorama (ontology-browser)
+bn: OntoRama
+oc (homepage): http://www.ontorama.org/
+in: prototype Ontology Browser
+oc (demo): http://www.ontorama.org/demo/index.html
+oc (snapshot): http://www.ontorama.org/doc/img/ontorama-small.png
+in: DSTC, KVO
+
+%cancel
+
+testy
+oc @ rho (email): imap:private.travel.testz/new/1096263318.12392_0.admon
+
+
+We have been playing a bit with your GEDCOM example.
+We actually rewrote it in N3 and the relations are at
+http://www.agfa.com/w3c/euler/gedcom-relations.n3
+To have a practical example, some facts are at
+http://www.agfa.com/w3c/euler/gedcom-facts.n3
+We did all kinds of queries such as at
+http://www.agfa.com/w3c/euler/gedcom-query.n3
+and found all kinds of proofs such as at
+http://www.agfa.com/w3c/euler/gedcom-relations.n3
+We had to fix (actually simplify) cycle detection.
+Recursions and mutual references seem to work ...
+Maybe the proofs can give an idea about possible
+simplifications of the relations ...
+
+
+
+http://www.w3.org/2000/10/swap/Examples
+
+
+
+
+cwm
+oc (homepage): http://www.w3.org/2000/10/swap/doc/cwm.html
+in:  general-purpose data processor for the semantic web
+oc (reference): http://www.w3.org/2000/10/swap/doc/CwmHelp
+oc (tutorial): http://www.w3.org/2000/10/swap/doc/
+
+Date: Mon, 13 Sep 2004 20:35:53 +1000
+From: Robert Barta <rho@bigpond.net.au>
+To: rho@bigpond.net.au
+Cc: rho@bigpond.net.au
+Reply-To: rho@bigpond.net.au
+Subject: information resources
+
+http://lists.w3.org/Archives/Public/www-tag/2004Sep/0046.html
+
+GET 'http://xmlns.com/wordnet/1.6/Hoary_Marmot'|less
+
+
+http://www.w3.org/2004/ontaria/
+
+ed at http://xmlns.com/wordnet/1.6/) is o
+
+ After all, President Bush conveys
+> information but you obviously would not call him an information resource.
+
+
+http://www.w3.org/2003/Talks/0520-www-tf1-b3-rules/all.htm
+
+http://www.heise.de/newsticker/meldung/66679
+

@@ -1,4 +1,14 @@
-Revision history for Perl extension TM::SearchAble.
+Revision history for Perl extension TM::Corpus.
+
+0.03  Sun May 18 14:22:38 CEST 2008
+	- TM::Corpus::SearchAble::Plucene: doc fixes
+	- added: TM::Corpus::MLDBM as persistent implemention
+	- added: TM::Workbench::Plugin::Corpus as plugin for the tm workbench
+	- modified: uses $TM::log object
+	- added: decent README file
+
+0.02  ????????????????????????
+	- intermediate test version
 
 0.01  Sun Apr 13 11:46:22 2008
 	- original version; created by h2xs 1.23 with options

@@ -1,6 +1,5 @@
 package TM::Corpus;
 
-use 5.008;
 use strict;
 use warnings;
 use Data::Dumper;
@@ -77,9 +76,10 @@ sub new {
     my $class = shift;
     my %options = @_;
 
-    $options{map} or die "you have to provide a map to attach to";
+    $options{map} or $TM::log->logdie (__PACKAGE__ . ": you have to provide a map to attach to");
     $options{ua}  ||= _init_ua;
     $options{resources} = {};
+    $options{deficit}   = {};
     return bless \%options, $class;
 }
 
@@ -199,25 +199,47 @@ sub harvest {
 
     my $res  = $self->{resources};
     foreach my $r (keys %$res) {
-	next if     $res->{$r}->{val};
-	next unless $res->{$r}->{ref};
-	my $resp = $ua->get ( $res->{$r}->{ref} );
+	my $rr = $res->{$r};
+	next if     $rr->{val};
+	next unless $rr->{ref};
+	my $resp;
+#	eval {
+	    $resp = $ua->get ( $rr->{ref} );
+#	}; die $@ if $@;                                             # propagate exception for now
 
 	if ($resp->is_success) {
-	    $res->{$r}->{val}  = $resp->content;
-	    $res->{$r}->{mime} = $resp->header ('Content-Type');
+	    $rr->{val}  = $resp->content;
+	    $rr->{mime} = $resp->header ('Content-Type');
 	} else {
-	    $res->{$r}->{fetch_fails}++;
+	    $rr->{fetch_fails}++;
+	    $self->{deficit}->{$r} = { url => $rr->{ref}, fails => $rr->{fetch_fails}++ };
 	}
-	$res->{$r}->{last_attempt} = time;
-	$res->{$r}->{last_code}    = $resp->code;
+	$rr->{last_attempt} = time;
+	$rr->{last_code}    = $resp->code;
+	$res->{$r} = $rr;                                            # this is important if we TIE this!
     }
     return $self;
 }
 
-sub status {
+=pod
+
+=item B<deficit>
+
+I<$deficit> = I<$co>->deficit
+
+This method returns all the URL references which could not be resolved successfully during all
+previous invocations of C<harvest>. It is a hash (reference) with the assertion ID as key and a
+C<url>, C<fails> combo as value.
+
+Example:
+
+    warn "damn" if keys %{ $co->deficit };
+
+=cut
+
+sub deficit {
     my $self = shift;
-    die "not yet implemented";
+    return $self->{deficit};
 }
 
 =pod
@@ -226,7 +248,7 @@ sub status {
 
 =head1 SEE ALSO
 
-L<TM::Corpus::SearchAble>
+L<TM::Corpus::MLDBM>, L<TM::Corpus::SearchAble>
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -237,7 +259,7 @@ itself.
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 1;
 

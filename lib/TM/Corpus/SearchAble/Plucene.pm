@@ -23,7 +23,7 @@ TM::Corpus::SearchAble::Plucene - Topic Maps, Trait for searching, Plucene imple
    $co->harvest;                               # optional
 
                                                # attach searchable behaviour
-   Class::Trait->apply ($co => 'TM::Corpus::SearchAble');
+   Class::Trait->apply ($co => 'TM::Corpus::SearchAble::Plucene');
 
    $co->index ('/where/store/index/');         # build index
 
@@ -33,7 +33,8 @@ TM::Corpus::SearchAble::Plucene - Topic Maps, Trait for searching, Plucene imple
 =head1 DESCRIPTION
 
 This trait extends an existing document corpus by search functionality. In that it leverages
-L<Plucene>.
+L<Plucene>. It follows the abstract trait outlined in L<TM::Corpus::SearchAble>, so the
+documentation there applies.
 
 =head1 INTERFACE
 
