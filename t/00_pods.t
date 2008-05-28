@@ -14,6 +14,7 @@ plan skip_all => "Test::Pod 1.00 required for testing POD" if $@;
 my @PODs = qw(
 	      lib/TM/Corpus.pm
 	      lib/TM/Corpus/MLDBM.pm
+	      lib/TM/Corpus/Document.pm
 	      lib/TM/Corpus/SearchAble.pm
 	      lib/TM/Corpus/SearchAble/Plucene.pm
 	      );

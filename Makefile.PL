@@ -14,6 +14,10 @@ WriteMakefile(
 		  'File::Temp'  => 0.16,
 		  'BerkeleyDB'  => 0.26,
 		  "MLDBM"       => 2.01,
+		  'Class::Accessor' => 0.30,
+		  'HTML::Entities' => 1.35,
+		  'Test::Pod::Coverage' => 1.08,
+		  'Digest::MD5' => 2.36,
 	      },
 	      ABSTRACT_FROM  => 'lib/TM/Corpus.pm', # retrieve abstract from module
 	      AUTHOR         => 'Robert Barta <drrho@cpan.org>');

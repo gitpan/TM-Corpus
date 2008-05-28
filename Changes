@@ -1,5 +1,11 @@
 Revision history for Perl extension TM::Corpus.
 
+0.04  Wed May 28 16:42:13 CEST 2008
+	- add: TM::Corpus::Document
+	- add: tokenizing and feature detection in Document
+	- add: functionality in Corpus to add/retract documents
+	- modified: now corpus also include subject address and subject indicators as resources
+
 0.03  Sun May 18 14:22:38 CEST 2008
 	- TM::Corpus::SearchAble::Plucene: doc fixes
 	- added: TM::Corpus::MLDBM as persistent implemention

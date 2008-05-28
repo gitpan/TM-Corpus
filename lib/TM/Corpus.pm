@@ -8,6 +8,7 @@ require Exporter;
 use base qw(Exporter);
 
 use TM::Literal;
+use TM::Corpus::Document;
 
 =pod
 
@@ -55,7 +56,7 @@ The value must be a L<TM> object. Any map should do.
 
 =item C<ua> (optional)
 
-You can pass in your own <LWP::UserAgent> object. That is used when you ask to C<harvest> the
+You can pass in your own L<LWP::UserAgent> object. That is used when you ask to C<harvest> the
 documents behind occurrence URLs. If you omit that, a stock object will be generated.
 
 =back
@@ -152,29 +153,47 @@ sub update {
     my $self = shift;
     my $tm   = $self->{map};
     my $res  = $self->{resources};
-    # collect things from the map
+    #-- collect things from the map
+    # 1) assertion values
     foreach my $a (grep { $_->[TM->KIND] != TM->ASSOC } $tm->match_forall ()) {   # go for all occs and names
 	next if $res->{ $a->[TM->LID] };                                          # we already have a value for that one
 
 	my ($tid, $val) = @{ $a->[TM->PLAYERS] };                                 # get the topic id and the whole value
 	if ($val->[1] eq TM::Literal->URI) {                                      # for references we only store these
-	    $res->{ $a->[TM->LID] } = {
+	    $res->{ $a->[TM->LID] } = new TM::Corpus::Document ({
 		                        aid => $a->[TM->LID],
 					ref => $val->[0],
 					tid => $tid,
-				        };
+					attachment => 'characteristics',
+				        });
 	} else {                                                                  # for values the value itself
-	    $res->{ $a->[TM->LID] } = {
+	    $res->{ $a->[TM->LID] } = new TM::Corpus::Document ({
 		                        aid  => $a->[TM->LID],
 					val  => $val->[0],
-					mime => 'text/plain',
+					mime => 'text/plain',   # TODO: where to get a decent MIME from?
 					tid  => $tid,
-				        };
+					attachment => 'characteristics',
+				        });
 	}
     }
+    # 2) topics with subject locators, indicators
+    foreach my $t ($tm->toplets (\ '+all -infrastructure')) {
+	my $tid = $t->[TM->LID];
+
+	_inject ($res, new TM::Corpus::Document ({ref => $t->[TM->ADDRESS ], tid => $tid, attachment => 'address', }))
+	    if $t->[TM->ADDRESS];
+	sub _inject {
+	    my $res = shift;
+	    my $doc = shift;
+	    $res->{ $doc->ref } = $doc; 
+	}
+	map { _inject ($res, new TM::Corpus::Document ({ref => $_,           tid => $tid, attachment => 'indication', }) ) }
+	    @{ $t->[TM->INDICATORS] };
+    }
+
     # cleanup leftover of values from assertions which do not exist anymore
     map  { delete $res->{$_} }                                                    # delete those
-    grep { ! $tm->retrieve ($_) }                                                 # which do not exist as assertions
+    grep { ! ( $tm->retrieve ($_) || $tm->tids ($_) || $tm->tids (\ $_)) }        # which do not exist as assertions, addrs or indics
     keys %$res;                                                                   # in our resources
     return $self;
 }
@@ -200,22 +219,22 @@ sub harvest {
     my $res  = $self->{resources};
     foreach my $r (keys %$res) {
 	my $rr = $res->{$r};
-	next if     $rr->{val};
-	next unless $rr->{ref};
+	next if     $rr->val;
+	next unless $rr->ref;
 	my $resp;
 #	eval {
-	    $resp = $ua->get ( $rr->{ref} );
+	    $resp = $ua->get ( $rr->ref );
 #	}; die $@ if $@;                                             # propagate exception for now
 
 	if ($resp->is_success) {
-	    $rr->{val}  = $resp->content;
-	    $rr->{mime} = $resp->header ('Content-Type');
+	    $rr->val  ( $resp->content );
+	    $rr->mime ( $resp->header ('Content-Type') );
 	} else {
-	    $rr->{fetch_fails}++;
-	    $self->{deficit}->{$r} = { url => $rr->{ref}, fails => $rr->{fetch_fails}++ };
+	    $rr->{_fetch_fails}++;
+	    $self->{deficit}->{$r} = { url => $rr->ref, fails => $rr->{_fetch_fails}++ };
 	}
-	$rr->{last_attempt} = time;
-	$rr->{last_code}    = $resp->code;
+	$rr->{_last_attempt} = time;
+	$rr->{_last_code}    = $resp->code;
 	$res->{$r} = $rr;                                            # this is important if we TIE this!
     }
     return $self;
@@ -244,6 +263,86 @@ sub deficit {
 
 =pod
 
+=item B<inject>
+
+I<$co>->inject (I<$tid> => I<$doc>, ...)
+
+This method injects documents into the corpus. For each of these you have to provide a topic
+identifier (tid, see L<TM>) and a L<TM::Corpus::Document> instance.
+
+=cut
+
+sub inject {
+    my $self = shift;
+    my $tm   = $self->{map};
+    my $res  = $self->{resources};
+
+    while (@_) {                                             # they always come in pairs
+	my $tid = shift;
+	my $doc = shift;
+
+	$tid = $tm->internalize ($tid);                      # really get a working topic id
+	use Digest::MD5 qw(md5);
+	my $uri = $doc->ref || 'inline:'.md5($doc->val);
+	$tm->internalize ($tid => $uri);                     # add a subject locator if doc had a URL
+	$res->{ $uri } = $doc;                               # attach it to the resources
+	$doc->{ tid }  = $tid;                               # have it there whether you like it or not
+    }
+}
+
+=pod
+
+=item B<extract>
+
+I<@docs> = I<$co>->extract (I<$tid>, ...)
+
+Given a list of topic identifiers, the subject addresses of these will be use to identify the
+underlying documents. These are then returned in a list.
+
+=cut
+
+sub extract {
+    my $self = shift;
+    my $tm   = $self->{map};
+    my $res  = $self->{resources};
+
+    return  map  { $res->{$_} }
+            grep { defined $_ }
+	    map  { $_->[TM->ADDRESS] }
+	    grep { defined $_ }
+            map  { $tm->toplet ( $_ ) }
+            $tm->tids (@_)
+            ;
+}
+
+=pod
+
+=item B<eject>
+
+<$co>->eject (I<$tid>, ...)
+
+This method removes all documents which are subjects of the topics handed in.  The topics are
+removed as well from the underlying topic map.
+
+=cut
+
+sub eject {
+    my $self = shift;
+    my $tm   = $self->{map};
+    my $res  = $self->{resources};
+
+    map  { delete $res->{$_} }
+       grep { defined $_ }
+       map  { $_->[TM->ADDRESS] }
+       grep { defined $_ }
+       map  { $tm->toplet ( $_ ) }
+       $tm->tids (@_);
+    map { $tm->externalize ($_) }
+       $tm->tids (@_);
+}
+
+=pod
+
 =back
 
 =head1 SEE ALSO
@@ -259,7 +358,7 @@ itself.
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 1;
 

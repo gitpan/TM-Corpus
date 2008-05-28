@@ -3,13 +3,16 @@ Makefile.PL
 MANIFEST
 README
 t/00_pods.t
+t/00_pod_coverage.t
 t/01_corpus.t
 t/02_search.t
 t/03_mldbm.t
 t/04_plugins.t
+t/05_document.t
 t/lib/LWP/Mock.pm
 t/test.atm
 lib/TM/Corpus.pm
+lib/TM/Corpus/Document.pm
 lib/TM/Corpus/MLDBM.pm
 lib/TM/Corpus/SearchAble.pm
 lib/TM/Corpus/SearchAble/Plucene.pm

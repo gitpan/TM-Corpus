@@ -64,11 +64,11 @@ sub index {
 	use Plucene::Document;
 	my $doc = Plucene::Document->new;
 	use Plucene::Document::Field;
-	$doc->add (Plucene::Document::Field->UnStored  (content => $res->{$r}->{val})) if $res->{$r}->{val};
+	$doc->add (Plucene::Document::Field->UnStored  (content => $res->{$r}->val)) if $res->{$r}->val;
 	$doc->add (Plucene::Document::Field->UnIndexed (baseuri => $baseuri));
-	$doc->add (Plucene::Document::Field->Keyword   (aid     => $res->{$r}->{aid}));
-	$doc->add (Plucene::Document::Field->Keyword   (tid     => $res->{$r}->{tid}));
-	$doc->add (Plucene::Document::Field->Text      (ref     => $res->{$r}->{ref})) if $res->{$r}->{ref};
+	$doc->add (Plucene::Document::Field->Keyword   (aid     => $res->{$r}->aid));
+	$doc->add (Plucene::Document::Field->Keyword   (tid     => $res->{$r}->tid));
+	$doc->add (Plucene::Document::Field->Text      (ref     => $res->{$r}->ref)) if $res->{$r}->ref;
 	$writer->add_document($doc);
     }
     $writer->optimize;
