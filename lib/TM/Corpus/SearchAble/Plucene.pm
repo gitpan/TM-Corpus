@@ -40,18 +40,33 @@ documentation there applies.
 
 =over
 
+=item B<directory>
+
+Getter/setter method for the file location of the index. In this case this will
+be a directory (which will be created if it does not exist).
+
+=cut
+
+sub directory {
+    my $self = shift;
+    my $d    = shift;
+    return $d ? $self->{directory} = $d : $self->{directory};
+}
+
+=pod
+
 =item B<index>
 
-I<$co>->index (I<$directory_path>)
+I<$co>->index;
 
-This method creates an index and stores everything into the provided directory.
+This method creates/updates the index.
 
 =cut
 
 sub index {
     my $self = shift;
     my $baseuri = $self->map->baseuri;
-    $self->{directory} = shift || die "you must provide a path where to store the index";
+    $self->{directory} || die "you must provide a path where to store the index (using method 'directory')";
 
     use Plucene::Analysis::SimpleAnalyzer;
     my $analyzer = Plucene::Analysis::SimpleAnalyzer->new();

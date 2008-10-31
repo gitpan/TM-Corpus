@@ -31,7 +31,12 @@ use File::Temp qw/tempdir/;
 use constant DIRECTORY => tempdir();
 END { rmtree DIRECTORY }
 
-$co->index (DIRECTORY);
+eval {
+    $co->index;
+}; like ($@, qr/provide.+path/, 'missing directory');
+
+$co->directory (DIRECTORY);
+$co->index;
 
 is_deeply ([
 	    [

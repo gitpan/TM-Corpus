@@ -6,6 +6,13 @@ use Test::More qw(no_plan);
 
 use_ok ('TM::Workbench::Plugin::Corpus');
 
+my $warn = shift @ARGV;
+unless ($warn) {
+    close STDERR;
+    open (STDERR, ">/dev/null");
+    select (STDERR); $| = 1;
+}
+
 my @tmp;
 use IO::File;
 
@@ -30,19 +37,19 @@ use File::Temp qw/ tempfile tempdir /;
 {
     my $p = new TM::Workbench::Plugin::Corpus;
 
-    my ($fh, $tmp1) = tempfile(UNLINK => 1);
+    my ($fh, $tmp1) = tempfile(UNLINK => 1, SUFFIX => '.corpus');
 
-    ok ("file:t/test.atm > corpus:$tmp1", 'loud on match');
-    ok (!$p->execute ("file:t/test.atm > corpus:$tmp1"), 'silent creation of corpus');
-    ok (-e $tmp1 && -B $tmp1, 'corpus is a binary file');
+    ok ("file:t/test.atm > $tmp1", 'loud on match');
+    ok (!$p->execute ("file:t/test.atm > $tmp1"), 'silent creation of corpus');
+    ok (-e "$tmp1.pag" && -B "$tmp1.pag", 'corpus is a binary file');
 
     eval {
-	$p->execute ('corpus:xxx');
-    }; like ($@, qr/no corpus/, 'invalid corpus detected');
+	$p->execute ('xxx.corpus');
+    }; like ($@, qr/provide a map/, 'invalid corpus detected');
 
     my $dir = tempdir( CLEANUP => 1 );
-    ok (!$p->execute ("corpus:$tmp1 > plucene:$dir"), 'silent creation of index');
-    ok (-e "$dir/deletable", 'plucene created');
+    ok (!$p->execute ("$tmp1 > $dir.plucene"), 'silent creation of index');
+    ok (-e "$dir.plucene/deletable", 'plucene created');
 
 }
 

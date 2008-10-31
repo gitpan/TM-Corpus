@@ -18,7 +18,6 @@ use_ok ('TM::Corpus::Document');
     is ($d->val ('ramsti'), 'ramsti', 'mod: val');
     is ($d->val           , 'ramsti', 'modded: val');
 }
-
 {
     my $d = new TM::Corpus::Document ({ val  => 'the "brown fox" jumps 4 over 5.2 the "brown" "fox"',
 					mime => 'text/slain' });
@@ -28,21 +27,25 @@ use_ok ('TM::Corpus::Document');
 
     $d->mime ('text/plain');
 
-    $TM::Corpus::Document::FILTERS{'!BADWORDS'}   = sub { $_ = shift; s/brown\s+fox//g; return $_; };
-    $TM::Corpus::Document::FILTERS{'!GOODWORDS'}  = sub { $_ = shift; return /fox/ ? $_ : ''; };
+#    $TM::Corpus::Document::FILTERS{'!BADWORDS'}   = sub { $_ = shift; s/brown\s+fox//g; return $_; };
+#    $TM::Corpus::Document::FILTERS{'!GOODWORDS'}  = sub { $_ = shift; return /fox/ ? $_ : ''; };
+
+    $TM::Corpus::Document::PATTERNS{'BADWORD'}   = qr/brown\s+fox/;
+    $TM::Corpus::Document::PATTERNS{'GOODWORD'}  = qr/.*fox.*/;
 
     my %TESTS = (
-		 'QUOTER NUMBER WORDER'  =>  [ 'the', 'brown fox', 'jumps', '4', 'over', '5.2', 'the', 'brown', 'fox' ],
-		 'QUOTER NUMBER !NUMBER WORDER' =>  [ 'the', 'brown fox', 'jumps', 'over', 'the', 'brown', 'fox' ],
-		 '-QUOTER -NUMBER WORDER' => [ 'the', 'jumps', 'over', 'the' ],
-		 'QUOTER NUMBER -WORDER' =>  [ 'brown fox', '4', '5.2', 'brown', 'fox' ],
-		 'QUOTER !BADWORDS NUMBER WORDER'  =>  [ 'the', 'jumps', '4', 'over', '5.2', 'the', 'brown', 'fox' ],
-		 'QUOTER !BADWORDS NUMBER !NUMBER WORDER' => [ 'the', 'jumps', 'over', 'the', 'brown', 'fox' ],
-		 'QUOTER NUMBER WORDER !GOODWORDS' => [ 'brown fox', 'fox' ],
+		 ''                                          =>  [ 'the', 'brown fox', 'jumps', 'over', 'the', 'brown', 'fox' ],
+		 '+QUOTE +NUMBER +WORD'  =>  [ 'the', 'brown fox', 'jumps', '4', 'over', '5.2', 'the', 'brown', 'fox' ],
+		 '+QUOTE +NUMBER -<NUMBER> +WORD'            =>  [ 'the', 'brown fox', 'jumps', 'over', 'the', 'brown', 'fox' ],
+		 '-QUOTE -NUMBER +WORD'                      => [ 'the', 'jumps', 'over', 'the' ],
+		 '+QUOTE +NUMBER '                           =>  [ 'brown fox', '4', '5.2', 'brown', 'fox' ],
+		 '+QUOTE -<BADWORD> +NUMBER +WORD'           =>  [ 'the', 'jumps', '4', 'over', '5.2', 'the', 'brown', 'fox' ],
+		 '+QUOTE -<BADWORD> +NUMBER -<NUMBER> +WORD' => [ 'the', 'jumps', 'over', 'the', 'brown', 'fox' ],
+		 '+QUOTE +NUMBER +WORD   +<GOODWORD>  '      => [ 'brown fox', 'fox' ],
 		 );
     foreach my $t (keys %TESTS) {
 #	warn Dumper $d->tokenize (tokenizers => $t), $TESTS{$t} ;
-	ok (eq_array ($d->tokenize (tokenizers => $t), $TESTS{$t}), $t);
+	ok (eq_array ($d->tokenize (tokenizers => $t), $TESTS{$t}), $t || 'default');
     }
 }
 
@@ -51,14 +54,17 @@ use_ok ('TM::Corpus::Document');
 					mime => 'text/plain' });
 
     my %stops =  map { $_ => 1 } qw(or CIA);
-    $TM::Corpus::Document::FILTERS{'!STOPS'} = sub { $_ = shift; return $stops{$_} ? '' : $_; };
+    $TM::Corpus::Document::PATTERNS{'STOPS'} = sub { $_ = shift; return $stops{$_} ? '' : $_; };
 
     my %TESTS = (
-		 'COM&BO COM-BO -INTERPUNCT' => [qw(C&A Tele-com)],
-		 'COM&BO COM-BO CO.M.BO.'    => [qw(C&A F.B.I. Tele-com)],
-		 'COM&BO COM-BO -INTERPUNCT WORDER' => [qw(C&A F B I says CIA or Tele-com Robert sacklpicka)],
-		 'COM&BO COM-BO -INTERPUNCT WORDER !STOPS' => [qw(C&A F B I says Tele-com Robert sacklpicka)],
-		 'COM&BO COM-BO -INTERPUNCT Capitalized !STOPS ' => [qw(C&A Tele-com Robert)],
+		 '+COM&BO +COM-BO -INTERPUNCT' => [qw(C&A Tele-com)],
+		 '+COM&BO +COM-BO +CO.M.BO.'   => [qw(C&A F.B.I. Tele-com)],
+		 '+COM&BO +COM-BO -INTERPUNCT +WORD'          => [qw(C&A FBI says CIA or Tele-com Robert sacklpicka)],
+		 '+COM&BO +COM-BO -INTERPUNCT +WORD -<STOPS>' => [qw(C&A FBI says        Tele-com Robert sacklpicka)],
+		 '+COM&BO +COM-BO -INTERPUNCT +Capitalized '  => [qw(C&A FBI      CIA    Tele-com Robert)],
+		 '+COM&BO +COM-BO -INTERPUNCT +Capitalized -<STOPS> ' => [qw(C&A FBI     Tele-com Robert)],
+		 '+COM&BO +COM-BO -INTERPUNCT +Capitalized -<STOPS> +<lowercase>  ' => [qw(c&a fbi     tele-com robert)],
+		 '+COM&BO +COM-BO -INTERPUNCT +Capitalized -<STOPS> +<UPPERCASE>  ' => [qw(C&A FBI     TELE-COM ROBERT)],
 		 );
     foreach my $t (keys %TESTS) {
 #	warn Dumper $d->tokenize (tokenizers => $t), $TESTS{$t} ;
@@ -81,7 +87,7 @@ use_ok ('TM::Corpus::Document');
 
     foreach my $t (keys %TESTS) {
 	ok (eq_set (
-		    [ keys %{ $d->features (tokenizers => 'QUOTER NUMBER !NUMBER WORDER', featurizers => $t) } ],
+		    [ keys %{ $d->features (tokenizers => '+QUOTE +NUMBER -<NUMBER> +WORD', featurizers => $t) } ],
 		    $TESTS{$t}),
 	    $t);
     }

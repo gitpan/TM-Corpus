@@ -30,10 +30,8 @@ sub precedence { return 'p3'; }
 sub matches {
     my $self = shift;
     my $cmd  = shift;
-    return $cmd =~ /(corpus|plucene):/
+    return $cmd =~ /\.(corpus|plucene)/
     }
-
-our %corpi;
 
 sub _load {
     my $url = shift;
@@ -50,38 +48,48 @@ sub execute {
     my $self = shift;
     my $cmd  = shift;
 
-    if ($cmd =~ /^\s*corpus:([^>]+?)\s*$/) {                            # corpus:xxx   this lists the current status
-	my $co = $corpi{$1} || $TM::log->logdie (__PACKAGE__ . ": no corpus with file '$1'");
+    if ($cmd =~ /^\s*([^>]*?\.corpus)\s*$/) {                                      # xxx.corpus   this lists the current status
+	my $corpus  = $1;
+	use TM::Corpus::MLDBM;
+        my $co = new TM::Corpus::MLDBM (file => $corpus);
 	use Data::Dumper;
 	return Dumper $co->{deficit};
 
-    } elsif ($cmd =~ /^\s*corpus:([^>]+?)\s*>\s*plucene:(.+?)\s*$/) {     # corpus:xxx > plucene:yyy
-	my $co = $corpi{$1} || $TM::log->logdie (__PACKAGE__ . ": no corpus with file '$1'");
+    } elsif ($cmd =~ /^\s*([^>]*?\.corpus)\s*>\s*(.*?\.plucene)\s*$/) {     # xxx.corpus > yyy.plucene
+	my $corpus  = $1;
+	my $plucene = $2;
+	use TM::Corpus::MLDBM;
+        my $co = new TM::Corpus::MLDBM (file => $corpus);
+
         use Class::Trait;
         Class::Trait->apply ($co => 'TM::Corpus::SearchAble::Plucene');
-	$co->index ($2);
+	$co->directory ($plucene);
+	$co->index;
 	return;
 
-    } elsif ($cmd =~ /^\s*plucene:([^>]+?)\s*$/) { # plucene:yyy lists stats
+    } elsif ($cmd =~ /^\s*([^>]*?\.plucene)\s*$/) {                         # plucene:yyy lists stats
+	my $plucene = $1;
 	use Plucene::Index::Reader;
-	my $r     = Plucene::Index::Reader->open($1);
+	my $r     = Plucene::Index::Reader->open($plucene);
 	no strict 'refs';
 	my @readers = (@{ $r->{readers} } ? @{ $r->{readers} } : $r);
 	return "Index Stats:
 Total documents: " . $r->max_doc . " in " . @readers . " segments\n";
 
-    } elsif ($cmd =~ /^\s*internet:\s*>\s*corpus:(.+?)\s*$/) {       # internet > corpus:xxx
-	my $co = $corpi{$1} || $TM::log->logdie (__PACKAGE__ . ": no corpus with file '$1'");
+    } elsif ($cmd =~ /^\s*internet:\s*>\s*(.*?\.corpus)\s*$/) {       # internet: > xxx.corpus
+	my $corpus = $1;
+	use TM::Corpus::MLDBM;
+	my $co = new TM::Corpus::MLDBM (file => $corpus, ua => new My::LWP::UserAgent);
 	$co->harvest;
 	return;
 
-    } elsif ($cmd =~ /^\s*(.*?)\s*>\s*corpus:(.+?)\s*$/) {
+    } elsif ($cmd =~ /^\s*(.*?)\s*>\s*(.*?\.corpus)\s*$/) {
 	my $tm     = _load ($1);
 	my $corpus = $2;
 
 	use TM::Corpus::MLDBM;
-	$corpi{$corpus} = new TM::Corpus::MLDBM (map => $tm, file => $corpus, ua => new My::LWP::UserAgent);
-	$corpi{$corpus}->update;
+	my $co = new TM::Corpus::MLDBM (map => $tm, file => $corpus, ua => new My::LWP::UserAgent);
+	$co->update;
 	return;
 
     } else {

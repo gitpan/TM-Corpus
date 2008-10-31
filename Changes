@@ -1,5 +1,15 @@
 Revision history for Perl extension TM::Corpus.
 
+	~ signals deprecation
+	! signals compatibility break
+
+0.05  Fri Oct 31 20:21:04 CET 2008
+	- moved MLDBM version of Corpus to MLDBM::Sync (otherwise clash with TM::Materialized::MLDBM)
+	- added directory method to Plucene to control where the index is
+	! index of Plucene package does not take the directory as parameter, there is now a dedicated 'directory' method
+	- MLDBM is now expecting no map as parameter if the DBM file already exists
+	- Workbench commands moved a bit toward TempleScript
+
 0.04  Wed May 28 16:42:13 CEST 2008
 	- add: TM::Corpus::Document
 	- add: tokenizing and feature detection in Document

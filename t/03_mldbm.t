@@ -6,6 +6,12 @@ use Test::More qw(no_plan);
 
 use_ok ('TM::Corpus::MLDBM');
 
+my $warn = shift @ARGV;
+unless ($warn) {
+    close STDERR;
+    open (STDERR, ">/dev/null");
+    select (STDERR); $| = 1;
+}
 
 use TM::Materialized::AsTMa;
 my $tm = new TM::Materialized::AsTMa (inline => '
@@ -27,7 +33,7 @@ my ($tmp);
 use IO::File;
 use POSIX qw(tmpnam);
 do { $tmp = tmpnam() ;  } until IO::File->new ($tmp, O_RDWR|O_CREAT|O_EXCL);
-END { unlink ($tmp) || warn "# cannot unlink tmp file '$tmp', ignoring"; }
+END { unlink <$tmp.*> }
 
 eval {
     my $co = new TM::Corpus::MLDBM (map => $tm);
@@ -36,27 +42,32 @@ eval {
 eval {
     my $co = new TM::Corpus::MLDBM (file => $tmp);
 }; like ($@, qr/provide a map/, 'missing map');
+unlink <$tmp.*>;
 
 {
     my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmp);
     ok ($co->isa ('TM::Corpus::MLDBM'), 'class');
     ok ($co->isa ('TM::Corpus'),        'class');
-    unlink $tmp;
+    unlink <$tmp.*>;
 }
+
 
 {
     {
 	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmp);
 	$co->update;
 	is (keys %{ $co->resources },                                     5, 'all resources updated');
+	is ($co->map->baseuri, 'tm://nirvana/',                              'map ok');
     }
-
     {
-	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmp);
+	my $co = new TM::Corpus::MLDBM (file => $tmp);
 	is (keys %{ $co->resources },                                     5, 'still: all resources updated');
+	is ($co->map->baseuri, 'tm://nirvana/',                              'map ok');
     }
-    unlink $tmp;
+    unlink <$tmp.*>;
 }
+
+__END__
 
 {
     {

@@ -8,8 +8,9 @@ use base 'TM::Corpus';
 use Data::Dumper;
 
 use BerkeleyDB ;
-use MLDBM qw(BerkeleyDB::Hash) ;
-use Fcntl;
+use MLDBM qw(MLDBM::Sync::SDBM_File Storable) ;
+use MLDBM::Sync;
+use Fcntl qw(:DEFAULT);
 
 =pod
 
@@ -64,28 +65,26 @@ sub new {
     my %options  = @_;
 
     my $file     = delete $options{file} or $TM::log->logdie ("no file specified");
-    my $self     = $class->SUPER::new (%options);
-
-    delete $self->{resources}; # get rid of the original ones
-
-#warn "file exists $file?";
-    if (-e $file) {                                                                 # file does exist already
-        tie %{ $self->{resources} }, 'MLDBM', -Filename => $file                    # tie resources
+    my %self;
+    if (-e $file . '.pag') {                                                        # file does exist already
+#warn "file exists";
+        tie %self, 'MLDBM::Sync', $file, O_RDWR, 0600                               # tie the whole thing
             or $TM::log->logdie ( "Cannot tie to DBM file '$file: $!");
                                                                                     # oh, we are done now
+	$self{ua} = $options{ua} || TM::Corpus::_init_ua;
     } else {                                                                        # no file yet
 #warn "file not exists $file!";
-        tie %{ $self->{resources} }, 'MLDBM', -Filename => $file,                   # tie resources
-	                                      -Flags    => DB_CREATE                # which we create here
+        tie %self, 'MLDBM::Sync', $file, O_RDWR|O_CREAT, 0600                       # tie now
 	     or $TM::log->logdie ( "Cannot create DBM file '$file: $!");
-
+	%self = %{ $class->SUPER::new (%options) };                                 # create an empty beast
+	$self{resources} = {};
     }
-    return $self;
+    return bless \%self, $class;
 }
 
 sub DESTROY {                                                                       # if an object went out of scope
     my $self = shift;
-    untie %{ $self->{resources} };                                                  # release the tie with the underlying resource
+    untie %$self;                                                                   # release the tie with the underlying resource
 }
 
 =pod
@@ -103,7 +102,7 @@ itself.
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 1;
 

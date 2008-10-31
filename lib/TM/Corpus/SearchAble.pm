@@ -24,8 +24,15 @@ TM::Corpus::SearchAble - Topic Maps, Abstract Trait for searching
 
                                                # attach searchable behaviour
    Class::Trait->apply ($co => 'TM::Corpus::SearchAble::SomeImplementation');
+   $co->directory ('/where/store/index/');
+   $co->index;                                 # build index
 
-   $co->index ('/where/store/index/');         # build index
+   warn Dumper $co->search ('content:"BBB"');  # search for something
+
+   # if you already have an indexed corpus, then
+   my $co = ....
+   Class::Trait->apply ($co => 'TM::Corpus::SearchAble::SomeImplementation');
+   $co->directory ('/where/index/is/stored/');
 
    warn Dumper $co->search ('content:"BBB"');  # search for something
 
@@ -43,7 +50,7 @@ trait which provides search functionality has to honor.
 
 I<$co>->index (...)
 
-This method creates an index. Individual implementation may need additional parameters. The method
+This method creates an index. Individual implementations may need additional parameters. The method
 returns the object itself.
 
 =item B<search>
@@ -90,7 +97,7 @@ itself.
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 1;
 

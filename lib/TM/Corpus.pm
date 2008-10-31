@@ -148,11 +148,11 @@ should invoke this method at a suitable time.
 
 =cut
 
-
 sub update {
     my $self = shift;
     my $tm   = $self->{map};
     my $res  = $self->{resources};
+
     #-- collect things from the map
     # 1) assertion values
     foreach my $a (grep { $_->[TM->KIND] != TM->ASSOC } $tm->match_forall ()) {   # go for all occs and names
@@ -195,6 +195,7 @@ sub update {
     map  { delete $res->{$_} }                                                    # delete those
     grep { ! ( $tm->retrieve ($_) || $tm->tids ($_) || $tm->tids (\ $_)) }        # which do not exist as assertions, addrs or indics
     keys %$res;                                                                   # in our resources
+    $self->{resources} = $res;                                                    # this makes MLDBM happy
     return $self;
 }
 
@@ -343,6 +344,68 @@ sub eject {
 
 =pod
 
+=item B<features>
+
+I<$fs>           = <$co>->features (I<%options>)
+(I<$fs>, I<$vs>) = <$co>->features (I<%options>)
+
+This method computes a hash (reference) of feature values inside the corpus. Optionally the method
+also returns a list of all feature vectors from which the feature set has been computed.
+
+The extracting and tokenizing options are those in L<TM::Corpus::Document>. Additionally you can
+define cut-off points to remove the most frequent and the least frequent features.
+
+=over
+
+=item C<low> (default: 0.01)
+
+=item C<high> (default: 1.0)
+
+=back
+
+=cut
+
+sub features {
+    my $self = shift;
+    my %options = @_;
+
+    my @fvs = map  { $_->features (%options) }                             # collect individual feature vectors
+              grep { $_->val }
+              map  { $self->{resources}->{$_} }
+              keys %{ $self->{resources} }; # strange: values would not work....
+
+    # TODO: if this is a name, treat it differently, than a value occurrence, than a ref
+    # TODO: 20:20:60
+
+    my %features;                                                               # consolidate all features
+    foreach my $fv (@fvs) {
+	map { $features{$_} += $fv->{$_} } keys %{ $fv };
+    }
+#warn Dumper \%features;
+    #-- normalize ---------------------------------------------------------------------
+    my $total;
+    map { $total += $features{$_} } keys %features;
+    map { $features{$_} /= $total } keys %features;
+#warn Dumper \%features;
+
+    my $low  = defined $options{low}  ? $options{low}  : 0.01;                  # everything below this will be ignored
+    my $high = defined $options{high} ? $options{high} : 1.0;                   # everything above this will be ignored
+    #-- cutoff features too frequent or too unfrequent --------------------------------
+    map { delete $features{$_} if $features{$_} < $low  } keys %features;
+    map { delete $features{$_} if $features{$_} > $high } keys %features;
+
+    if (defined $options{nr}) {                                                 # absolute length cutoff
+	my @labels = sort { $features{$b} <=> $features{$a} }                   # sort by feature strength
+	             keys %features;                                            # find all the values for these features (by popularity desc)
+	@labels = @labels[0..$options{nr}-1] if $options{nr} <= scalar @labels; # take a slice, if there is more
+	my %f2  = map { $features{$_} ? ($_ => $features{$_}) : ()} @labels;    # copy those which should count
+	%features = %f2;
+    }
+    return (\%features, \@fvs, $total);
+}
+
+=pod
+
 =back
 
 =head1 SEE ALSO
@@ -358,7 +421,7 @@ itself.
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 1;
 

@@ -204,44 +204,90 @@ our %EXTRACTORS = (
 # PDF  .pdf => pdftohtml -htmlmeta
 # bauernpoint .ppt => odt2text 
 
+use Regexp::Common qw /URI/;
+use Regexp::Common::Email::Address qw /URI/;
+our %PATTERNS = (
+		 'QUOTE'       => qr/[\'"](.*?)[\'"]/,
+		 'NUMBER'      => qr/(?<!\w)(\d+(\.\d*)?)(?!\w)/,
+		 'COM&BO'      => qr/(\w+&\w+)/,
+		 'COM-BO'      => qr/(\w+-\w+)/,
+		 'CO.M.BO.'    => qr/\b(\w\.\w(\.\w)?\.)/,
+		 'INTERPUNCT'  => qr/([\.\!\&\-\|:;,\"\'\?\(\)\[\]\{\}\/\+\-\*])/,
+		 'Capitalized' => qr/\b([A-Z]\w+?)\b/,
+		 'URI'         => qr/($RE{URI}{-keep})/,
+		 'EMAIL'       => qr/($RE{Email}{Address}{-keep})/,
 
-our %TOKENIZERS = (
-		   'WORDER' 	 => sub { join "", map { "<$_>" } grep { length($_) } split /\s*\b\s*/, shift },
-		  '-WORDER' 	 => sub { $_ = shift; s/(.*?)//gs; return $_ },
-		   'QUOTER' 	 => sub { $_ = shift; s/"(.*?)"/<$1>/gs; return $_ },
-		  '-QUOTER' 	 => sub { $_ = shift; s/".*?"//gs; return $_ },
-		   'NUMBER' 	 => sub { $_ = shift; s/(\d+(\.\d*)?)/<$1>/g; return $_ },
-		  '-NUMBER' 	 => sub { $_ = shift; s/\d+(\.\d*)?//g; return $_ },
-		   'COM&BO' 	 => sub { $_ = shift; s/(\w+&\w+)/<$1>/g; return $_; },
-		   'COM-BO' 	 => sub { $_ = shift; s/(\w+-\w+)/<$1>/g; return $_; },
-		   'CO.M.BO.'    => sub { $_ = shift; s/\b(\w\.\w(\.\w)?\.)/<$1>/g; return $_;},
-		   '-INTERPUNCT' => sub { $_ = shift; s/[\.\&\-\|:;,\"\'\?\(\)\[\]\{\}\/]/ /g; return $_; },
-		   'Capitalized' => sub { $_ = shift; s/\b([A-Z]\w+?)\b/<$1>/g; return $_; },
-		   );
-
-our %FILTERS = (
-		'!NUMBER' => sub { $_ = shift; s/\d+(\.\d*)?//gs; return $_ },
-#		'TAP'     => sub { warn $_[0]; return $_[0]; },
-		);
+		 'lowercase'   => sub { return lc( $_[0] ); },
+		 'UPPERCASE'   => sub { return uc( $_[0] ); },
+		 );
 
 sub tokenize {
     my $self    = shift;
     my %options = @_;
-    $options{extractor} ||= $EXTRACTORS{ $self->{mime} };
+    $options{extractor}  ||= $EXTRACTORS{ $self->{mime} };
     die "no extractor" unless $options{extractor};
-    $options{tokenizers} ||= [ qw(QUOTER WORDER) ];
+    $options{tokenizers} ||= '+QUOTE -NUMBER +WORD';
     
+sub _tok {
+    my $p = shift;
+    if (ref $p eq 'CODE') { 
+	return &$p (shift); 
+    } else {
+	$_ = shift; s/$p/<$1>/g; return $_;
+    }
+}
+
+sub _filt {
+    my $p = shift;
+    if (ref $p eq 'CODE') { 
+	return &$p (shift); 
+    } else {
+	$_ = shift; return $_ if /$p/;
+    }
+}
+
+sub _notok {
+    my $p = shift;
+    if (ref $p eq 'CODE') { 
+	return &$p (shift);
+    } else {
+	$_ = shift; s/$p//g; return $_;
+    }
+}
+
+sub _word {
+    use locale;
+    return join "", map { "<$_>" } grep { length($_) } split /\s*\b\s*/, $_[0];
+}
+
     my $d = &{ $options{extractor} } ($self->{val});
     my $c = '>' . $d->{content} . '<';              # maybe do the tokenizing on all other components later?
     $c =~ s/\s+/ /sg;                               # canonicalize blanks (and newlines?)
     foreach my $e (split /\s+/ , $options{tokenizers} ) {
-	if ($e =~ /!/) {
-	    $c =~ s/<(.+?)>/'<'.&{$FILTERS{ $e }}   ($1).'>'/egs;
-	} elsif ($e eq 'TAP') {
+#	warn $e;
+	my $p;
+	if ($e =~ /^\+WORD/) {
+	    $c =~ s/>([^<]+?)</'>'.&_word($1).'<'/egs;
+
+	} elsif ($e eq '|') {
 	    warn $c;
+
+	} elsif (($e =~ /^\+(.+)/)    && ($p = $PATTERNS{$1})) {
+	    $c =~ s/>([^<]+?)</'>'.&_tok($p, $1).'<'/egs;
+
+	} elsif (($e =~ /^\-(.+)/)    && ($p = $PATTERNS{$1})) {
+	    $c =~ s/>([^<]+?)</'>'.&_notok($p, $1).'<'/egs;
+
+	} elsif (($e =~ /^\-<(.+)>/)  && ($p = $PATTERNS{$1})) {
+	    $c =~ s/<(.*?)>/'<'.&_notok($p, $1).'>'/egs;
+
+	} elsif (($e =~ /^\+<(.+)>/)  && ($p = $PATTERNS{$1})) {
+	    $c =~ s/<(.*?)>/'<'.&_filt($p, $1).'>'/egs;
+
 	} else {
-	    $c =~ s/>([^<]+?)</'>'.&{$TOKENIZERS{ $e }}($1).'<'/egs;
+	    die "unknown operator '$e': ".Dumper \%PATTERNS;
 	}
+
     }
     return [ grep { $_ =~ /\S/ } ($c =~ /<([^<]+?)>/g) ];
 }
@@ -318,7 +364,7 @@ sub features {
     foreach my $f (split /\s+/ , $options{featurizers}) {
 	%fs = (%fs, &{ $FEATURIZERS{ $f }} ($self));
     }
-#    warn Dumper \%fs;
+#    warn "feature ".Dumper \%fs;
     return \%fs;
 }
 
@@ -343,10 +389,47 @@ itself.
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 1;
 
 __END__
 
                                    
+our %TOKENIZERS = (
+		   'WORDER' 	 => sub { use locale;
+					  return join "", map { "<$_>" } grep { length($_) } split /\s*\b\s*/, shift },
+		  '-WORDER' 	 => sub { $_ = shift; s/(.*?)//gs; return $_ },
+		   'QUOTER' 	 => sub { $_ = shift; s/"(.*?)"/<$1>/gs; return $_ },
+		  '-QUOTER' 	 => sub { $_ = shift; s/".*?"//gs; return $_ },
+		   'NUMBER' 	 => sub { $_ = shift; s/(?<!\w)(\d+(\.\d*)?)(?!\w)/<$1>/g; return $_ },
+		  '-NUMBER' 	 => sub { $_ = shift; s/(?<!\w)\d+(\.\d*)?(?!\w)//g; return $_ },
+		   'COM&BO' 	 => sub { $_ = shift; s/(\w+&\w+)/<$1>/g; return $_; },
+		   'COM-BO' 	 => sub { $_ = shift; s/(\w+-\w+)/<$1>/g; return $_; },
+		   'CO.M.BO.'    => sub { $_ = shift; s/\b(\w\.\w(\.\w)?\.)/<$1>/g; return $_;},
+		   '-INTERPUNCT' => sub { $_ = shift; s/[\.\&\-\|:;,\"\'\?\(\)\[\]\{\}\/\+\-\*]/ /g; return $_; },
+		   'Capitalized' => sub { $_ = shift; s/\b([A-Z]\w+?)\b/<$1>/g; return $_; },
+		   'URI'         => sub { $_ = shift; 
+					  use Regexp::Common qw /URI/;
+					  s|$RE{URI}{-keep}|<$1>|g;
+					  return $_; },
+		   '-URI'        => sub { $_ = shift; 
+					  use Regexp::Common qw /URI/;
+					  s|$RE{URI}||g;
+					  return $_; },
+		   'EMAIL'       => sub { $_ = shift; 
+					  use Regexp::Common::Email::Address qw /URI/;
+					  s|$RE{Email}{Address}{-keep}|<$1>|g;
+					  return $_; },
+		   '-EMAIL'      => sub { $_ = shift; 
+					  use Regexp::Common::Email::Address qw /URI/;
+					  s|$RE{Email}{Address}||g;
+					  return $_; },
+		   );
+
+our %FILTERS = (
+		'!NUMBER'    => sub { $_ = shift; s/^\d+(\.\d*)?$//gs; return $_ },
+		'!lowercase' => sub { return lc( shift ); },
+#		'TAP'     => sub { warn $_[0]; return $_[0]; },
+		);
+
