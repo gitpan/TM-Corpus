@@ -3,6 +3,9 @@ Revision history for Perl extension TM::Corpus.
 	~ signals deprecation
 	! signals compatibility break
 
+0.06  ????????????????????????????
+	- add missing dependency
+
 0.05  Fri Oct 31 20:21:04 CET 2008
 	- moved MLDBM version of Corpus to MLDBM::Sync (otherwise clash with TM::Materialized::MLDBM)
 	- added directory method to Plucene to control where the index is

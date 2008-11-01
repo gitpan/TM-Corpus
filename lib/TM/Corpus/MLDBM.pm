@@ -77,7 +77,6 @@ sub new {
         tie %self, 'MLDBM::Sync', $file, O_RDWR|O_CREAT, 0600                       # tie now
 	     or $TM::log->logdie ( "Cannot create DBM file '$file: $!");
 	%self = %{ $class->SUPER::new (%options) };                                 # create an empty beast
-	$self{resources} = {};
     }
     return bless \%self, $class;
 }
