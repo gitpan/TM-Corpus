@@ -76,7 +76,7 @@ sub execute {
 	return "Index Stats:
 Total documents: " . $r->max_doc . " in " . @readers . " segments\n";
 
-    } elsif ($cmd =~ /^\s*internet:\s*>\s*(.*?\.corpus)\s*$/) {       # internet: > xxx.corpus
+    } elsif ($cmd =~ /^\s*internet\s*>>\s*(.*?\.corpus)\s*$/) {       # internet >> xxx.corpus
 	my $corpus = $1;
 	use TM::Corpus::MLDBM;
 	my $co = new TM::Corpus::MLDBM (file => $corpus, ua => new My::LWP::UserAgent);

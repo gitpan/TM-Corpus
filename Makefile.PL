@@ -19,7 +19,7 @@ WriteMakefile(
 		  'Test::Pod::Coverage' => 1.08,
 		  'Digest::MD5'         => 2.36,
 		  'Regexp::Common::Email::Address' => 1.01,
-		  'Regexp::Common'      => 2.122,
+		  'Regexp::Common'      => 2.120,
 	      },
 	      ABSTRACT_FROM  => 'lib/TM/Corpus.pm', # retrieve abstract from module
 	      AUTHOR         => 'Robert Barta <drrho@cpan.org>');

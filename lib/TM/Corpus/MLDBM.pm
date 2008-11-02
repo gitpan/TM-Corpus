@@ -66,7 +66,7 @@ sub new {
 
     my $file     = delete $options{file} or $TM::log->logdie ("no file specified");
     my %self;
-    if (-e $file . '.pag') {                                                        # file does exist already
+    if (-e $file || -e $file . '.pag') {                                            # file does exist already
 #warn "file exists";
         tie %self, 'MLDBM::Sync', $file, O_RDWR, 0600                               # tie the whole thing
             or $TM::log->logdie ( "Cannot tie to DBM file '$file: $!");

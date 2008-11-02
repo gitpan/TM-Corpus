@@ -6,15 +6,15 @@ use Test::More qw(no_plan);
 
 use_ok ('TM::Workbench::Plugin::Corpus');
 
-my $warn = shift @ARGV;
+my $warn = shift @ARGV || 1;
 unless ($warn) {
     close STDERR;
     open (STDERR, ">/dev/null");
     select (STDERR); $| = 1;
 }
 
-my @tmp;
-use IO::File;
+#my @tmp;
+#use IO::File;
 
 ##IO::File::new_tmpfile()
 
@@ -30,28 +30,30 @@ use IO::File;
 #    ($fh, $filename) = tempfile( $template, DIR => $dir);
 #    ($fh, $filename) = tempfile( $template, SUFFIX => â.datâ);
 
-
-use File::Temp qw/ tempfile tempdir /;
-
+use File::Temp qw/ :POSIX tempdir /;
 
 {
     my $p = new TM::Workbench::Plugin::Corpus;
 
-    my ($fh, $tmp1) = tempfile(UNLINK => 1, SUFFIX => '.corpus');
-
-    ok ("file:t/test.atm > $tmp1", 'loud on match');
-    ok (!$p->execute ("file:t/test.atm > $tmp1"), 'silent creation of corpus');
-    ok (-e "$tmp1.pag" && -B "$tmp1.pag", 'corpus is a binary file');
+    my $tmpfile = tmpnam() . '.corpus';
+    ok ("file:t/test.atm > $tmpfile", 'loud on match');
+    ok (!$p->execute ("file:t/test.atm > $tmpfile"), 'silent creation of corpus') or
+	diag("writing to the corpus has failed");
+    ok (   (-e "$tmpfile.pag" && -B "$tmpfile.pag") 
+	|| (-e "$tmpfile"     && -B "$tmpfile") , 'corpus is a binary file') or
+	diag ("could not find binary corpus");
 
     eval {
 	$p->execute ('xxx.corpus');
     }; like ($@, qr/provide a map/, 'invalid corpus detected');
 
     my $dir = tempdir( CLEANUP => 1 );
-    ok (!$p->execute ("$tmp1 > $dir.plucene"), 'silent creation of index');
+    ok (!$p->execute ("$tmpfile > $dir.plucene"), 'silent creation of index');
     ok (-e "$dir.plucene/deletable", 'plucene created');
-
+    unlink <$tmpfile.*>
 }
+
+# TODO test internet >> ...
 
 __END__
 

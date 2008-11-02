@@ -6,7 +6,7 @@ use Test::More qw(no_plan);
 
 use_ok ('TM::Corpus::MLDBM');
 
-my $warn = shift @ARGV;
+my $warn = shift @ARGV || 1;
 unless ($warn) {
     close STDERR;
     open (STDERR, ">/dev/null");
@@ -29,42 +29,39 @@ oc (blog): http://md.devc.at/users/rho/
 
 use TM::Corpus::MLDBM;
 
-my ($tmp);
-use IO::File;
-use POSIX qw(tmpnam);
-do { $tmp = tmpnam() ;  } until IO::File->new ($tmp, O_RDWR|O_CREAT|O_EXCL);
-END { unlink <$tmp.*> }
-
 eval {
     my $co = new TM::Corpus::MLDBM (map => $tm);
 }; like ($@, qr/no file/, 'missing file');
 
+use File::Temp qw/ :POSIX /;
+my $tmpfile = tmpnam();
+END { unlink <$tmpfile.*> }
+
 eval {
-    my $co = new TM::Corpus::MLDBM (file => $tmp);
+    my $co = new TM::Corpus::MLDBM (file => $tmpfile);
 }; like ($@, qr/provide a map/, 'missing map');
-unlink <$tmp.*>;
+unlink <$tmpfile.*>;
 
 {
-    my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmp);
+    my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmpfile);
     ok ($co->isa ('TM::Corpus::MLDBM'), 'class');
     ok ($co->isa ('TM::Corpus'),        'class');
-    unlink <$tmp.*>;
+    unlink <$tmpfile.*>;
 }
-
 
 {
     {
-	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmp);
+	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmpfile);
 	$co->update;
 	is (keys %{ $co->resources },                                     5, 'all resources updated');
 	is ($co->map->baseuri, 'tm://nirvana/',                              'map ok');
     }
     {
-	my $co = new TM::Corpus::MLDBM (file => $tmp);
+	my $co = new TM::Corpus::MLDBM (file => $tmpfile);
 	is (keys %{ $co->resources },                                     5, 'still: all resources updated');
 	is ($co->map->baseuri, 'tm://nirvana/',                              'map ok');
     }
-    unlink <$tmp.*>;
+    unlink <$tmpfile.*>;
 }
 
 __END__
