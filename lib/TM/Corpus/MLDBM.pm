@@ -71,7 +71,7 @@ sub new {
         tie %self, 'MLDBM::Sync', $file, O_RDWR, 0600                               # tie the whole thing
             or $TM::log->logdie ( "Cannot tie to DBM file '$file: $!");
                                                                                     # oh, we are done now
-	$self{ua} = $options{ua} || TM::Corpus::_init_ua;
+#	$self{ua} = $options{ua} || TM::Corpus::_init_ua;
     } else {                                                                        # no file yet
 #warn "file not exists $file!";
         tie %self, 'MLDBM::Sync', $file, O_RDWR|O_CREAT, 0600                       # tie now
@@ -94,14 +94,14 @@ L<TM::Corpus::MLDBM>, L<TM::Corpus::SearchAble>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 200[8] by Robert Barta, E<lt>drrho@cpan.orgE<gt>
+Copyright 200[89] by Robert Barta, E<lt>drrho@cpan.orgE<gt>
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl
 itself.
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 1;
 

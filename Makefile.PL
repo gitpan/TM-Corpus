@@ -36,8 +36,10 @@ manifesto:
 	find lib/ -iname '*.pm' | sort
 	find t    -iname '*.t'  | sort
 
+#$(DISTVNAME).tar$(SUFFIX)
+
 upload:
-	cpan-upload-http TM-Corpus-\$(VERSION).tar.gz
+	cpan-upload -verbose TM-Corpus-\$(VERSION).tar.gz
 
 inject:
 	mcpani --add --module TM::Corpus --authorid DRRHO --modversion \$(VERSION) --file TM-Corpus-\$(VERSION).tar.gz
@@ -45,7 +47,7 @@ inject:
 	echo "reload index" | cpan
 
 debian:
-	(cd /usr/local/share/packages; rm -rf TM-Corpus* ; dh-make-perl --cpan-mirror file:/usr/local/share/minicpan --build --cpan TM::Corpus --notest)
+	(cd ; cd packages; rm -rf TM-Corpus* ; dh-make-perl --cpan-mirror file:/usr/local/share/minicpan --build --cpan TM::Corpus --notest --core-ok)
 
 MAKE
 }

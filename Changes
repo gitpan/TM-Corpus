@@ -3,8 +3,11 @@ Revision history for Perl extension TM::Corpus.
 	~ signals deprecation
 	! signals compatibility break
 
+0.09  Sun Apr 26 17:05:26 CEST 2009
+         - updated makefile
+
 0.08  Sun Apr 26 15:47:27 CEST 2009
-      - removed UA from object (clashes with Storable which complains about not being able to store CODE)
+         - removed UA from object (clashes with Storable which complains about not being able to store CODE)
 
 0.07  Sun Nov  2 04:43:16 CET 2008
 	- moved Workbench closer to TS (e.g. internet)
