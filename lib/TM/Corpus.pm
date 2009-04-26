@@ -24,10 +24,8 @@ TM::Corpus - Topic Maps, Document Corpus
    use TM::Corpus;
    my $co = new TM::Corpus (map => $tm);    # bind with map
 
-   $co->useragent (new LWP::UserAgent);     # would be the default anyway
-
    $co->update;                             # copy all content from the map
-   $co->harvest;                            # add documents from the Internet
+   $co->harvest (new LWP::UserAgent);       # add documents from the Internet
 
 =head1 ABSTRACT
 
@@ -78,7 +76,6 @@ sub new {
     my %options = @_;
 
     $options{map} or $TM::log->logdie (__PACKAGE__ . ": you have to provide a map to attach to");
-    $options{ua}  ||= _init_ua;
     $options{resources} = {};
     $options{deficit}   = {};
     return bless \%options, $class;
@@ -89,24 +86,6 @@ sub new {
 =head2 Methods
 
 =over
-
-=item B<useragent>
-
-my I<$ua> = I<$co>->useragent
-
-I<$co>->useragent (I<$ua>)
-
-Read/write accessor for the user agent component.
-
-=cut
-
-sub useragent {
-    my $self = shift;
-    my $ua   = shift;
-    return $ua ? $self->{ua} = $ua : $self->{ua};
-}
-
-=pod
 
 =item B<map>
 
@@ -207,6 +186,8 @@ I<$co> = I<$co>->harvest
 
 I<$co>->harvest
 
+I<$co>->harvest (I<$ua>)
+
 This method uses the defined user agent to resolve all URLs within the underlying map and to load
 the content locally. All network related modalities (timeout, limits, etc.) have to be implemented
 via the user agent.
@@ -215,7 +196,7 @@ via the user agent.
 
 sub harvest {
     my $self = shift;
-    my $ua   = $self->useragent;
+    my $ua   = shift || _init_ua;
 
     my $res  = $self->{resources};
     foreach my $r (keys %$res) {
@@ -347,6 +328,7 @@ sub eject {
 =item B<features>
 
 I<$fs>           = <$co>->features (I<%options>)
+
 (I<$fs>, I<$vs>) = <$co>->features (I<%options>)
 
 This method computes a hash (reference) of feature values inside the corpus. Optionally the method
@@ -372,7 +354,7 @@ sub features {
     my @fvs = map  { $_->features (%options) }                             # collect individual feature vectors
               grep { $_->val }
               map  { $self->{resources}->{$_} }
-              keys %{ $self->{resources} }; # strange: values would not work....
+              keys %{ $self->{resources} };                                # strange: values would not work....
 
     # TODO: if this is a name, treat it differently, than a value occurrence, than a ref
     # TODO: 20:20:60
@@ -414,14 +396,14 @@ L<TM::Corpus::MLDBM>, L<TM::Corpus::SearchAble>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 200[8] by Robert Barta, E<lt>drrho@cpan.orgE<gt>
+Copyright 200[89] by Robert Barta, E<lt>drrho@cpan.orgE<gt>
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl
 itself.
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 1;
 

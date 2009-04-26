@@ -54,7 +54,7 @@ The constructor accepts a hash as parameter with the following keys:
 =item C<file> (default: none)
 
 Name of a (.dbm) file in the local file system where the MLDBM is stored. If it does not exist, it
-will be created silently.
+will be silently created.
 
 =back
 

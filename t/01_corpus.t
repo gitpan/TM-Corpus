@@ -32,11 +32,10 @@ my $co = new TM::Corpus (map => $tm);
 
 ok ($co->isa ('TM::Corpus'), 'class');
 
-ok ($co->useragent->isa ('LWP::UserAgent'), 'user agent default');
+##ok ($co->useragent->isa ('LWP::UserAgent'), 'user agent default');
 
-use LWP::Mock;
-my $ua = new LWP::Mock;
-ok ($co->useragent ($ua)->isa ('LWP::Mock'), 'user agent customized');
+
+#ok ($co->useragent ($ua)->isa ('LWP::Mock'), 'user agent customized');
 
 ok (!keys %{ $co->resources} , 'empty corpus');
 
@@ -50,7 +49,9 @@ is ((scalar grep { $_->{ref} } values %{ $co->resources }),       6, 'before: re
 is ((scalar grep { $_->{val } } 
             grep { $_->{ref} } values %{ $co->resources }),       0, 'before: references with values');
 
-$co->harvest;
+use LWP::Mock;
+my $ua = new LWP::Mock;
+$co->harvest ($ua);
 
 #warn Dumper $co->{resources};
 

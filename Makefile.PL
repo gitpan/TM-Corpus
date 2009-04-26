@@ -5,9 +5,9 @@ WriteMakefile(
 	      NAME          => 'TM::Corpus',
 	      VERSION_FROM  => 'lib/TM/Corpus.pm', # finds $VERSION
 	      PREREQ_PM     => {
-		  'TM'          	=> 1.33,
+		  'TM'          	=> 1.45,
 		  "Test::More"  	=> 0.47,
-		  "Test::Pod"   	=>  1.00,
+		  "Test::Pod"   	=> 1.00,
 		  'LWP'         	=> 2.033,
 		  'Plucene'     	=> 1.24,
 		  'File::Path'  	=> 1.08,
