@@ -112,11 +112,11 @@ eval {
 
 {
     {
+	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmp);
+	$co->update;
 	use LWP::Mock;
 	my $ua = new LWP::Mock;
-	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmp, ua => $ua);
-	$co->update;
-	$co->harvest;
+	$co->harvest ($ua);
 
 #	warn Dumper $co;
 

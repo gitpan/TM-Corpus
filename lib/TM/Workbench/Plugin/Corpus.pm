@@ -79,8 +79,8 @@ Total documents: " . $r->max_doc . " in " . @readers . " segments\n";
     } elsif ($cmd =~ /^\s*internet\s*>>\s*(.*?\.corpus)\s*$/) {       # internet >> xxx.corpus
 	my $corpus = $1;
 	use TM::Corpus::MLDBM;
-	my $co = new TM::Corpus::MLDBM (file => $corpus, ua => new My::LWP::UserAgent);
-	$co->harvest;
+	my $co = new TM::Corpus::MLDBM (file => $corpus);
+	$co->harvest (new My::LWP::UserAgent);
 	return;
 
     } elsif ($cmd =~ /^\s*(.*?)\s*>\s*(.*?\.corpus)\s*$/) {
@@ -88,7 +88,7 @@ Total documents: " . $r->max_doc . " in " . @readers . " segments\n";
 	my $corpus = $2;
 
 	use TM::Corpus::MLDBM;
-	my $co = new TM::Corpus::MLDBM (map => $tm, file => $corpus, ua => new My::LWP::UserAgent);
+	my $co = new TM::Corpus::MLDBM (map => $tm, file => $corpus);
 	$co->update;
 	return;
 

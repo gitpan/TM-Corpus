@@ -3,6 +3,9 @@ Revision history for Perl extension TM::Corpus.
 	~ signals deprecation
 	! signals compatibility break
 
+0.10  Tue Apr 28 11:06:42 CEST 2009
+         - fix: Workbench still makes illegal use of UserAgent component
+
 0.09  Sun Apr 26 17:05:26 CEST 2009
          - updated makefile
 
