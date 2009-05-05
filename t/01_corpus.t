@@ -54,6 +54,10 @@ my $ua = new LWP::Mock;
 $co->harvest ($ua);
 
 #warn Dumper $co->{resources};
+#my ($a, $b, $c) = $co->features;
+#warn Dumper $a, $b, $c;
+#exit;
+
 
 is (keys %{ $co->{resources} },                                     8, 'after: all resources');
 is ((scalar grep { $_->{val} } values %{ $co->{resources} }),       8, 'after: values');

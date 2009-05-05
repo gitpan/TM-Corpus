@@ -3,6 +3,9 @@ Revision history for Perl extension TM::Corpus.
 	~ signals deprecation
 	! signals compatibility break
 
+0.11  Tue May  5 10:44:36 CEST 2009
+      - fix: when using MLDBM version, harvest would not memorize
+
 0.10  Tue Apr 28 11:06:42 CEST 2009
          - fix: Workbench still makes illegal use of UserAgent component
 

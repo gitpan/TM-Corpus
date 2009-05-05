@@ -64,31 +64,31 @@ unlink <$tmpfile.*>;
     unlink <$tmpfile.*>;
 }
 
-__END__
-
 {
     {
+	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmpfile);
+	$co->update;
 	use LWP::Mock;
 	my $ua = new LWP::Mock;
-	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmp, ua => $ua);
-	$co->update;
-	$co->harvest;
 
-#	warn Dumper $co;
+#	warn "before ".Dumper $co->{resources};
+	$co->harvest ($ua);
+#	warn "after ".Dumper $co->{resources};
 
 	is (keys %{ $co->{resources} },                                     5, 'all resources harvested');
 	is ((scalar grep { $_->{val} } values %{ $co->{resources} }),       5, 'all values harvested');
     }
 
     {
-	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmp);
+	my $co = new TM::Corpus::MLDBM (map => $tm, file => $tmpfile);
 	is (keys %{ $co->resources },                                       5, 'still: all resources harvested');
 	is ((scalar grep { $_->{val} } values %{ $co->{resources} }),       5, 'still: all values harvested');
     }
+    unlink <$tmpfile.*>;
 }
 
 
-
+## deficit
 __END__
 
 

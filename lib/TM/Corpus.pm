@@ -219,6 +219,7 @@ sub harvest {
 	$rr->{_last_code}    = $resp->code;
 	$res->{$r} = $rr;                                            # this is important if we TIE this!
     }
+    $self->{resources} = $res;                                       # this is important if we TIE this!
     return $self;
 }
 
@@ -331,6 +332,8 @@ I<$fs>           = <$co>->features (I<%options>)
 
 (I<$fs>, I<$vs>) = <$co>->features (I<%options>)
 
+@@@@ total @@@
+
 This method computes a hash (reference) of feature values inside the corpus. Optionally the method
 also returns a list of all feature vectors from which the feature set has been computed.
 
@@ -345,16 +348,20 @@ define cut-off points to remove the most frequent and the least frequent feature
 
 =back
 
+@@ option nr @@@@
+
+0.01, 1.00 constants
+
 =cut
 
 sub features {
     my $self = shift;
     my %options = @_;
 
-    my @fvs = map  { $_->features (%options) }                             # collect individual feature vectors
+    my @fvs = map  { $_->features (%options) }                                  # collect individual feature vectors
               grep { $_->val }
               map  { $self->{resources}->{$_} }
-              keys %{ $self->{resources} };                                # strange: values would not work....
+              keys %{ $self->{resources} };                                     # strange: values would not work....
 
     # TODO: if this is a name, treat it differently, than a value occurrence, than a ref
     # TODO: 20:20:60
@@ -371,7 +378,7 @@ sub features {
 #warn Dumper \%features;
 
     my $low  = defined $options{low}  ? $options{low}  : 0.01;                  # everything below this will be ignored
-    my $high = defined $options{high} ? $options{high} : 1.0;                   # everything above this will be ignored
+    my $high = defined $options{high} ? $options{high} : 1.00;                  # everything above this will be ignored
     #-- cutoff features too frequent or too unfrequent --------------------------------
     map { delete $features{$_} if $features{$_} < $low  } keys %features;
     map { delete $features{$_} if $features{$_} > $high } keys %features;
@@ -403,7 +410,7 @@ itself.
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 1;
 

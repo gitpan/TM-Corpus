@@ -90,7 +90,7 @@ sub DESTROY {                                                                   
 
 =head1 SEE ALSO
 
-L<TM::Corpus::MLDBM>, L<TM::Corpus::SearchAble>
+L<TM::Corpus>, L<TM::Corpus::SearchAble>
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                TM-Corpus
-version:             0.10
+version:             0.11
 abstract:            Topic Maps, Document Corpus
 license:             ~
 author:              
